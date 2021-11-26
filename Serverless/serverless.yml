@@ -1,0 +1,46 @@
+service: tutorial-pokemon
+
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: python3.8
+  lambdaHashingVersion: 20201221
+  region: us-east-1
+  memorySize: 128
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - mq:DescribeBroker
+            - secretsmanager:GetSecretValue
+            - kms:Decrypt
+          Resource:
+            - "*"
+
+
+functions:
+  lambda1-pokemon:
+    handler: lambda1.main
+    events:
+      - http:
+          path: lambda1/pokemon
+          method: GET
+  lambda2-pokemon:
+    handler: lambda2.main
+
+resources:
+  Resources:
+    BucketUpload:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: bucket-pokemon-tutorial-v2
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    pythonBin: py
